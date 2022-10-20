@@ -1,13 +1,17 @@
-import { Controller, Get, Post, Body, Param } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateMessageDto } from './dtos/create-message.dto';
 import { MessageService } from './message.service';
 
 @Controller('messages')
 export class MessagesController {
-  messagesService: MessageService;
-  constructor() {
-    this.messagesService = new MessageService();
-  }
+  constructor(public readonly messagesService: MessageService) {}
 
   @Get()
   listMessages() {
@@ -21,6 +25,10 @@ export class MessagesController {
 
   @Get('/:id')
   getMessage(@Param('id') id: string) {
-    return this.messagesService.findOne(id);
+    const message = this.messagesService.findOne(id);
+    if (!message) {
+      throw new NotFoundException('message not found');
+    }
+    return message;
   }
 }
